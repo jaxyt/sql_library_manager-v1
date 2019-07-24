@@ -1,3 +1,4 @@
+var createError = require('http-errors');
 var express = require('express');
 var router = express.Router();
 
@@ -35,8 +36,12 @@ router.get('/new', function(req, res, next) {
 /* Edit book form. */
 router.get("/:id", function(req, res, next){
   var book = find(req.params.id);  
-
-  res.render("books/update-book", {book: book, title: "Update Book"});
+  if (book) {
+    res.render("books/update-book", {book: book, title: "Update Book"});
+  } else {
+    next(createError(404));
+  }
+  //res.render("books/update-book", {book: book, title: "Update Book"});
 });
 
 /* PUT update book. */
