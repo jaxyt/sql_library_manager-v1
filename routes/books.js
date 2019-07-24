@@ -41,7 +41,6 @@ router.get("/:id", function(req, res, next){
   } else {
     next(createError(404));
   }
-  //res.render("books/update-book", {book: book, title: "Update Book"});
 });
 
 /* PUT update book. */
