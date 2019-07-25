@@ -1,66 +1,88 @@
 var createError = require('http-errors');
 var express = require('express');
 var router = express.Router();
+var Book = require("../models").Book;
 
-const books = [
-  {id: 1, title: "A Brief History of Time", author: "Stephen Hawking", genre: "Non Fiction", year: 1988},
-  {id: 2, title: "Armada", author: "Ernest Cline", genre: "Science Fiction", year: 2015},
-  {id: 3, title: "Emma", author: "Jane Austen", genre: "Classic", year: 1815}
-]
-
-function find(id) {
-  var matchedBooks = books.filter(function(book) { return book.id == id; });
-  return matchedBooks[0];
-}
 
 /* GET books listing. */
 router.get('/', function(req, res, next) {
-  res.render("index", {books: books, title: "Books"});
+  Book.findAll({order: [["createdAt", "DESC"]]}).then((books) => {
+    res.render("index", {books: books, title: "Books"});
+  }).catch(function(err) {
+    res.sendStatus(500);
+  });
 });
 
 /* POST create book. */
 router.post('/new', function(req, res, next) {
-  var book = Object.assign({}, req.body, {
-    id: books.length + 1,
+  Book.create(req.body).then(function(book) {
+    res.redirect("/books");
+  }).catch(function(err) {
+    if (err.name === "SequelizeValidationError") {
+      res.render('books/new', {book: Book.build(req.body), title: 'New Book', errors: err.errors});
+    } else {
+      throw err;
+    }
+  }).catch(function(err) {
+    res.sendStatus(500);
   });
-  books.push(book);
-
-  res.redirect("/books");
 });
 
 /* Create a new book form. */
 router.get('/new', function(req, res, next) {
-  res.render("books/new-book", {book: {}, title: "New Book"});
+  res.render("books/new-book", {book: Book.build(), title: "New Book"});
 });
 
 /* Edit book form. */
 router.get("/:id", function(req, res, next){
-  var book = find(req.params.id);  
-  if (book) {
-    res.render("books/update-book", {book: book, title: "Update Book"});
-  } else {
-    next(createError(404));
-  }
+  Book.findByPk(req.params.id).then((book) => {
+    if (book) {
+      res.render("books/update-book", {book: book, title: "Update Book"});
+    } else {
+      next(createError(404));
+    }
+  }).catch(function(err) {
+    res.sendStatus(500);
+  });
 });
 
 /* PUT update book. */
 router.put("/:id", function(req, res, next){
-  var book = find(req.params.id);
-  book.title = req.body.title;
-  book.author = req.body.author;
-  book.genre = req.body.genre;
-  book.year = req.body.year;
-  
-  res.redirect("/books");    
+  Book.findByPk(req.params.id).then((book) =>{
+    if (book) {
+      return book.update(req.body);
+    } else {
+      next(createError(404));
+    }
+  }).then(() => {
+    res.redirect("/books"); 
+  }).catch(function(err) {
+    if (err.name === "SequelizeValidationError") {
+      var book = Book.build(req.body);
+      book.id = req.params.id;
+
+      res.render('books/edit', {book: book, title: 'Edit Book', errors: err.errors});
+    } else {
+      throw err;
+    }
+  }).catch(function(err) {
+    res.sendStatus(500);
+  });   
 });
 
 /* DELETE individual book. */
 router.delete("/:id/delete", function(req, res, next){
-  var book = find(req.params.id);  
-  var index = books.indexOf(book);
-  books.splice(index, 1);
-
-  res.redirect("/books");
+  Book.findByPk(req.params.id).then((book)=> {
+    if (book) {
+      return book.destroy();
+    } else {
+      next(createError(404));
+    }
+  }).then(()=>{
+    res.redirect("/books");
+  }).catch(function(err) {
+    res.sendStatus(500);
+  });
 });
 
 
