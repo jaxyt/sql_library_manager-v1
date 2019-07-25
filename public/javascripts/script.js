@@ -2,6 +2,13 @@ const table = document.querySelector("table");
 const books = document.querySelector("tbody").children;
 const body = document.querySelector("body");
 let pageLength = 5;
+
+/**
+ * Adds Search Functionality
+ * creates and inserts a search form into the page
+ * then adds an eventlistener which listens for keyboard events and hides all the books
+ * finally, it searches through all the books and removes the "hidden" attribute from the matching results
+ */
 const searchBooks = () => {
     const searchForm = document.createElement("form");
     const searchInput = document.createElement("input");
@@ -24,6 +31,13 @@ const searchBooks = () => {
         }
     });
 }
+
+/**
+ * Adds Pagination
+ * creates and appends a list of page numbers determined by the amount of books retrieved from the database
+ * then adds an eventlistener which listens for mouse events and which hides all books
+ * finally, it searches through all the books and removes the "hidden" attribute from the books that correspond to the current page
+ */
 const pageMenu = () => {
     const pageCount = Math.floor(books.length / pageLength) + 1;
     for (let i = pageLength; i < books.length; i++) {
@@ -52,6 +66,7 @@ const pageMenu = () => {
         }
     })
 }
+
 
 searchBooks();
 
