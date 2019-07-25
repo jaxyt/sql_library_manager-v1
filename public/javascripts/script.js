@@ -2,7 +2,6 @@ const table = document.querySelector("table");
 const books = document.querySelector("tbody").children;
 const body = document.querySelector("body");
 let pageLength = 5;
-const pages = [];
 const searchBooks = () => {
     const searchForm = document.createElement("form");
     const searchInput = document.createElement("input");
