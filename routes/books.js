@@ -19,7 +19,7 @@ router.post('/new', function(req, res, next) {
     res.redirect("/books");
   }).catch(function(err) {
     if (err.name === "SequelizeValidationError") {
-      res.render('books/new', {book: Book.build(req.body), title: 'New Book', errors: err.errors});
+      res.render('books/new-book', {book: Book.build(req.body), title: 'New Book', errors: err.errors});
     } else {
       throw err;
     }
@@ -61,7 +61,7 @@ router.put("/:id", function(req, res, next){
       var book = Book.build(req.body);
       book.id = req.params.id;
 
-      res.render('books/edit', {book: book, title: 'Edit Book', errors: err.errors});
+      res.render('books/update-book', {book: book, title: 'Edit Book', errors: err.errors});
     } else {
       throw err;
     }
